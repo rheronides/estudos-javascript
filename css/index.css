@@ -1,157 +1,140 @@
-*{
-	box-sizing: border-box;
- }
-
-body{
-	font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
-	font-size: 14px;
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-hover: #1f2937;
+  --accent: #58a6ff;
+  --accent-glow: rgba(88, 166, 255, 0.25);
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --border: #30363d;
 }
 
-header{
-	background-color: #333;
-	height: 3em;
-	color: #FFF;
-	margin-bottom: 1em;
+* {
+  box-sizing: border-box;
 }
 
-header h1{
-	font-size: 2em;
-	display:inline-block;
-	vertical-align:	middle;
-}
-header h2{
-	font-size: 2em;
-	display:inline-block;
-	vertical-align:	middle;
+html {
+  scroll-behavior: smooth;
 }
 
-header .container:before{
-	content: '';
-	display:inline-block;
-	height: 100%;
-	vertical-align:	middle;
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
-.container{
-	width: 60%;
-	height: 100%;
-	margin: 0 auto;
+/* ── Hero ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
 }
 
-section{
-	margin: 2em 0;
-	overflow: hidden;
+.hero__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-section h2{
-	font-size: 3em;
-	display: block;
-	padding-bottom: .5em;
-	border-bottom: 1px solid #ccc;
-	margin-bottom: .5em;
+.hero__name {
+  font-size: clamp(3rem, 10vw, 6rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  animation: fadeUp 0.8s ease both;
 }
 
-table{
-	width: 100%;
-	margin-bottom : .5em;
-    table-layout: fixed;
-
+.hero__title {
+  font-size: clamp(1.2rem, 4vw, 2rem);
+  font-weight: 400;
+  color: var(--accent);
+  animation: fadeUp 0.8s 0.15s ease both;
 }
 
-td, th {
-	padding: .7em;
-	margin: 0;
-	border: 1px solid #ccc;
-	text-align: center;
+.hero__tagline {
+  font-size: 1rem;
+  color: var(--text-muted);
+  animation: fadeUp 0.8s 0.3s ease both;
 }
 
-th{
-	font-weight: bold;
-	background-color: #EEE;
+/* ── Skills ── */
+.skills {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
 }
 
-label{
-	color: #555;
-	display: block;
-	margin-bottom: .2em;
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 2rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
 }
 
-.campo{
-	margin: 0;
-	padding-bottom: 1em;
-	width: 100%;
-	border: 1px solid #ccc;
-	padding: .7em;
-	width: 100%;
+.skills__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
 }
 
-.campo-medio{
-	display: inline-block;
-	padding-right: .5em;
+.skill-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem 2.5rem;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: default;
+  transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
 }
 
-.grupo{
-	width: 32%;
-	display: inline-block;
-	padding: 10px 0px;
+.skill-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px var(--accent-glow);
+  transform: translateY(-4px);
 }
 
-button{
-	padding: .5em 2em;
-	border: 0;
-	border-bottom: 3px solid;
-	font-size: 1.2em;
-	cursor: pointer;
-	margin: 0;
-	margin-top: -3px;
-	color: #fff;
-	background-color:#0c8cd3;
-	border-color: #04324c;
-	width: 20%;
-    display: block;
-    clear: both;
-    margin: 10px 0px;
-
+.skill-card__icon {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
 }
 
-button:active{
-	margin-top:0px;
-	border: 0;
+.skill-card__name {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text);
 }
 
-button[disabled=disabled], button:disabled {
-    background-color: gray;
-	border-color: darkgray;
-
+/* ── Footer ── */
+.footer {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  border-top: 1px solid var(--border);
 }
 
-.adicionar-paciente{
-    margin-top: 30px;
-}
-
-.campo-invalido{
-	border: 1px solid red;
-}
-
-.paciente-invalido{
-	background-color:lightcoral;
-}
-
-.msgerro{
-	color: red;
-}
-
-.fadeOut {
+/* ── Animations ── */
+@keyframes fadeUp {
+  from {
     opacity: 0;
-    transition: 0.5s;
-}
-
-#filtrar-tabela {
-    width: 200px;
-    height: 35px;
-    margin-bottom: 10px;
-}
-
-.invisivel {
-    display: none;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
