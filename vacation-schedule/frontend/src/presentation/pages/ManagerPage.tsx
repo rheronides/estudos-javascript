@@ -38,9 +38,33 @@ export default function ManagerPage({ employee, onSwitch }: Props) {
 function ApprovalsView({ manager }: { manager: Employee }) {
   const { data: pending = [], isLoading: loadingPending } = usePendingRequests(manager.id);
   const { data: decisions = [], isLoading: loadingDecisions } = useDecisionHistory(manager.id);
-  const { approve, reject } = useApproveRequest(manager.id);
+  const { approve, reject, bulkApprove, bulkReject, isBulkLoading } = useApproveRequest(manager.id);
 
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const currentMonth = format(new Date(), "MMMM yyyy", { locale: ptBR });
+
+  const allSelected = pending.length > 0 && selectedIds.size === pending.length;
+  const someSelected = selectedIds.size > 0;
+
+  const toggleAll = () =>
+    setSelectedIds(allSelected ? new Set() : new Set(pending.map((r) => r.id)));
+
+  const toggleOne = (id: number) =>
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+
+  const handleBulkApprove = async () => {
+    await bulkApprove(Array.from(selectedIds));
+    setSelectedIds(new Set());
+  };
+
+  const handleBulkReject = async () => {
+    await bulkReject(Array.from(selectedIds));
+    setSelectedIds(new Set());
+  };
 
   return (
     <div className="p-8 max-w-5xl">
@@ -61,12 +85,45 @@ function ApprovalsView({ manager }: { manager: Employee }) {
         </div>
       </div>
 
+      {/* Bulk action toolbar */}
+      {someSelected && (
+        <div className="flex items-center justify-between bg-brand-blue-light border border-brand-blue/20 px-4 py-3 mb-4">
+          <p className="text-sm font-semibold text-brand-blue">
+            {selectedIds.size} {selectedIds.size === 1 ? "solicitação selecionada" : "solicitações selecionadas"}
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={handleBulkReject}
+              disabled={isBulkLoading}
+              className="btn-outline text-red-500 border-red-200 hover:bg-red-50 disabled:opacity-50"
+            >
+              Recusar Selecionadas
+            </button>
+            <button
+              onClick={handleBulkApprove}
+              disabled={isBulkLoading}
+              className="bg-brand-blue text-white px-4 py-2 text-sm font-semibold hover:bg-brand-blue-dark transition-colors disabled:opacity-50"
+            >
+              {isBulkLoading ? "Processando..." : "Aprovar Selecionadas"}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Pending requests table */}
       <div className="mb-12">
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-100">
-              <th className="w-8 pb-3"></th>
+              <th className="w-8 pb-3">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={toggleAll}
+                  disabled={pending.length === 0}
+                  className="w-4 h-4 border-gray-300 rounded cursor-pointer"
+                />
+              </th>
               <th className="label pb-3 text-left">Solicitantes</th>
               <th className="label pb-3 text-left">Período</th>
               <th className="label pb-3 text-left">Duração</th>
@@ -85,9 +142,11 @@ function ApprovalsView({ manager }: { manager: Employee }) {
               <PendingRow
                 key={req.id}
                 request={req}
+                isSelected={selectedIds.has(req.id)}
+                onToggle={() => toggleOne(req.id)}
                 onApprove={() => approve.mutate(req.id)}
                 onReject={() => reject.mutate(req.id)}
-                isLoading={approve.isPending || reject.isPending}
+                isLoading={approve.isPending || reject.isPending || isBulkLoading}
               />
             ))}
           </tbody>
@@ -135,11 +194,15 @@ function ApprovalsView({ manager }: { manager: Employee }) {
 
 function PendingRow({
   request,
+  isSelected,
+  onToggle,
   onApprove,
   onReject,
   isLoading,
 }: {
   request: VacationRequest;
+  isSelected: boolean;
+  onToggle: () => void;
   onApprove: () => void;
   onReject: () => void;
   isLoading: boolean;
@@ -149,9 +212,14 @@ function PendingRow({
     .join(", ");
 
   return (
-    <tr className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+    <tr className={`border-b border-gray-50 transition-colors ${isSelected ? "bg-brand-blue-light" : "hover:bg-gray-50"}`}>
       <td className="py-4">
-        <input type="checkbox" className="w-4 h-4 border-gray-300 rounded" />
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={onToggle}
+          className="w-4 h-4 border-gray-300 rounded cursor-pointer"
+        />
       </td>
       <td className="py-4">
         <div className="flex items-center gap-3">

@@ -37,14 +37,23 @@ export default function EmployeePage({ employee, onSwitch }: Props) {
 
 // --- Request View ---
 
+function extractApiError(error: unknown): string {
+  const detail = (error as any)?.response?.data?.detail;
+  if (!detail) return "Erro ao enviar solicitação.";
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail)) return detail.map((e: any) => e.msg ?? String(e)).join("; ");
+  return "Erro ao enviar solicitação.";
+}
+
 function RequestView({ employee }: { employee: Employee }) {
   const { data: balance } = useBalance(employee.id, CURRENT_YEAR);
   const { data: requests = [] } = useEmployeeRequests(employee.id, CURRENT_YEAR);
-  const { mutate: createRequest, isPending, error } = useCreateRequest(employee.id);
+  const { mutate: createRequest, isPending, error, reset } = useCreateRequest(employee.id);
 
   const [periods, setPeriods] = useState<PeriodFormData[]>([{ start_date: "", days_count: 0 }]);
   const [advance13th, setAdvance13th] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
+  const [formError, setFormError] = useState("");
 
   const updatePeriod = (index: number, field: keyof PeriodFormData, value: string | number) => {
     setPeriods((prev) => prev.map((p, i) => (i === index ? { ...p, [field]: value } : p)));
@@ -59,7 +68,20 @@ function RequestView({ employee }: { employee: Employee }) {
   };
 
   const handleSubmit = () => {
+    reset();
+    setFormError("");
+
     const validPeriods = periods.filter((p) => p.start_date && p.days_count > 0);
+    if (validPeriods.length === 0) {
+      setFormError("Preencha ao menos um período com data e quantidade de dias.");
+      return;
+    }
+    const maxDays = Math.max(...validPeriods.map((p) => p.days_count));
+    if (maxDays < 14) {
+      setFormError("Pelo menos um período deve ter no mínimo 14 dias (regra CLT).");
+      return;
+    }
+
     createRequest(
       { employee_id: employee.id, advance_13th_salary: advance13th, year: CURRENT_YEAR, periods: validPeriods },
       {
@@ -74,6 +96,7 @@ function RequestView({ employee }: { employee: Employee }) {
   };
 
   const recentRequests = requests.slice(0, 3);
+  const errorMsg = formError || (error ? extractApiError(error) : "");
 
   return (
     <div className="p-8 max-w-5xl">
@@ -101,10 +124,8 @@ function RequestView({ employee }: { employee: Employee }) {
           {successMsg && (
             <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 text-sm">{successMsg}</div>
           )}
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-sm">
-              {(error as any)?.response?.data?.detail ?? "Erro ao enviar solicitação."}
-            </div>
+          {errorMsg && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-sm">{errorMsg}</div>
           )}
 
           {periods.map((period, index) => (
