@@ -1,5 +1,5 @@
 """Application service: vacation request lifecycle and approval workflow."""
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session, joinedload
 from models import Employee, VacationPeriod, VacationRequest
 from schemas import CreateRequestData, VacationRequestOut
@@ -98,7 +98,7 @@ class VacationService:
         if request.status != "pending":
             raise RequestNotPendingError("Request is not pending")
         request.status = status
-        request.decided_at = datetime.utcnow()
+        request.decided_at = datetime.now(timezone.utc)
         request.decided_by_id = manager_id
         self._db.commit()
         return VacationRequestOut.from_orm_with_total(self._load(request_id))

@@ -60,10 +60,14 @@ function Sidebar({ employee, activeNav, navItems, onNavChange }: Omit<Props, "on
 
 function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean; onClick: () => void }) {
   return (
-    <div onClick={onClick} className={isActive ? "nav-item-active" : "nav-item"}>
+    <button
+      onClick={onClick}
+      className={`w-full text-left ${isActive ? "nav-item-active" : "nav-item"}`}
+      aria-current={isActive ? "page" : undefined}
+    >
       {item.icon}
       {item.label}
-    </div>
+    </button>
   );
 }
 
