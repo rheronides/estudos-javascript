@@ -4,3 +4,4 @@ vacation-schedule/backend/services/__pycache__/
 vacation-schedule/backend/vacation.db
 vacation-schedule/frontend/node_modules/
 .coverage
+vacation-schedule/backend/tests/__pycache__/
