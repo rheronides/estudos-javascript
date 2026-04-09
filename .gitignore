@@ -1,0 +1,5 @@
+vacation-schedule/backend/__pycache__/
+vacation-schedule/backend/routes/__pycache__/
+vacation-schedule/backend/services/__pycache__/
+vacation-schedule/backend/vacation.db
+vacation-schedule/frontend/node_modules/
